@@ -1,9 +1,12 @@
 package com.theByteGuru.game;
 
+import com.theByteGuru.IO.Input;
 import com.theByteGuru.display.Display;
 import com.theByteGuru.utils.Time;
+import com.theByteGuru.graphics.TextureAtlas;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 public class Game implements Runnable{
     //int width, int height, String title, int _clearColor, int numBuffers
@@ -17,6 +20,7 @@ public class Game implements Runnable{
     public static final float UPDATE_INTERVAL = Time.SECOND / UPDATE_RATE;//
     public static final long IDLE_TIME = 1;//для перерыва между созданием других процессов, когда мы создали новый процесс 1 мили-секунда
 
+    public static final String ATLAS_FILE_NAME = "texture_atlas.png";
     private boolean running;
     private Thread gameThread;
     private Graphics2D graphics;
@@ -25,12 +29,23 @@ public class Game implements Runnable{
     float y = 250;
     float delta = 0;
     float radius = 50;
+    float speed = 4;
+
+    private Input input;
+    private TextureAtlas atlas;
+    private SpriteSheet sheet;
+    private Sprite sprite;
 
     //temp end
     public Game(){
         running = false;
         Display.create(WIDTH,HEIGHT,TITLE,CLEAR_COLOR,NUM_BUFFERS);
         graphics = Display.getGraphics();
+        input = new Input();
+        Display.addInputListener(input);
+        atlas = new TextureAtlas(ATLAS_FILE_NAME);
+        sheet = new SpriteSheet(atlas.cut(1*16,9*16,16, 16), 2, 16);
+        sprite = new Sprite(sheet, 2);
     }
     //for start one process
     public synchronized void start(){
@@ -56,13 +71,22 @@ public class Game implements Runnable{
     }
     //Считать всю физику,позиции и тд
     private void update(){
-        delta +=0.02f;
+        if(input.getKey(KeyEvent.VK_UP))
+            y -=speed;
+        if(input.getKey(KeyEvent.VK_DOWN))
+            y +=speed;
+        if(input.getKey(KeyEvent.VK_LEFT))
+            x -=speed;
+        if(input.getKey(KeyEvent.VK_RIGHT))
+            x +=speed;
     }
     //посчитали всю физику , все местонахождение всех танков
     private void render(){
         Display.clear();
-        graphics.setColor(Color.white);
-        graphics.fillOval((int)(x+(Math.sin(delta)*200)),(int)(y),(int)(radius*2),(int)(radius*2));
+        sprite.render(graphics, x, y);
+       /* graphics.setColor(Color.white);
+        graphics.drawImage(atlas.cut(0,0,32,32),300,300, null );
+        //graphics.fillOval((int)(x+(Math.sin(delta)*200)),(int)(y),(int)(radius*2),(int)(radius*2));*/
         Display.swapBuffers();
     }
     //Функция , которая будет вызывать рендер и апдейт, когда это нужно

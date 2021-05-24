@@ -1,4 +1,6 @@
 package com.theByteGuru.display;
+import com.theByteGuru.IO.Input;
+
 import javax.swing.JFrame;
 
 import javax.swing.*;
@@ -71,5 +73,8 @@ public abstract class Display {
     }
     public static void setTitle(String title){
         window.setTitle(title);
+    }
+    public static void  addInputListener(Input inputListener){
+        window.add(inputListener);
     }
 }
